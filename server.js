@@ -13,8 +13,8 @@ app.use(cors())
 app.use(express.urlencoded({extended: true}));
 app.use(express.json())
 
-app.use('/', userApiRoute)
-app.use('/', subscriberApiRoute)
+app.use(userApiRoute)
+app.use(subscriberApiRoute)
 
 const PORT = process.env.PORT
 app.listen(PORT, ()=>{

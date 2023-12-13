@@ -14,9 +14,10 @@ module.exports = {
             return res.status(401).json({msg: 'you are not authorized'})
         }
 
-        const veirfyToken = await jwt.verify(headerToken, secretKey)
+        const verifycurrentLoggedInUserToken = await jwt.verify(headerToken, secretKey)
 
-        req.user = veirfyToken.user;
+        req.user = verifycurrentLoggedInUserToken.user;
+
         next()
 
         } catch (error) {

@@ -12,6 +12,14 @@ router.post('/user/subscribe', UserAuth.authuser,
     check('userName', 'user must not be empty').not().isEmpty(),
 ],
     subscribedController.subscribed
-)
+);
+
+router.get('/user/getallsubscribers', UserAuth.authuser, subscribedController.getallSubscribers)
+
+router.get('/payment/:id', UserAuth.authuser, subscribedController.monthlyPayment)
+
+router.get('/sub/getallsubscriberwithmonthypay', subscribedController.subscriberwiththermonthlypayment)
+
+router.put('/sub/monthlypayment/:id/:paymentid', subscribedController.monthlyreceivedpayment)
 
 module.exports = router;

@@ -12,8 +12,7 @@ module.exports = {
 
     scheduledJob: async (id) => {
         const d = new Date();
-        //d.setDate(d.getDate() + 30);
-
+        d.setDate(d.getDate() + 30);
         const seconds = d.getSeconds();
         const min = d.getMinutes();
         const hour = d.getHours();
@@ -27,11 +26,11 @@ module.exports = {
 
         const cronExpressionVIP = `${seconds >= 59 ? 1 : seconds} ${min +1} ${hour} ${date} ${month + 1} *`;
 
-        console.log(cronExpressionVIP);
+        console.log(cronExpression);
 
         try {
             cron.schedule(
-                cronExpressionVIP,
+                cronExpression,
                 async () => {
                     try {
                         const subscriber = await Subscriber.findOne({ _id: id, subscription: true });
@@ -63,6 +62,7 @@ module.exports = {
                         setTimeout(() => {
                             module.exports.scheduledJob(id);
                         }, 60 * 1000); // 1 minute
+
                     } catch (error) {
                         console.log('Error inside cron job:', error);
                     }
