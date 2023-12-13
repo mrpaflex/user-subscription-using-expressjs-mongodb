@@ -13,8 +13,15 @@ const SubscriberSchema = new mongoose.Schema({
         type: String,
         required: true
     },
+
+    userid:{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'user'
+    },
+    
     subscription:{
-        type: Boolean
+        type: Boolean,
+        default: true
     },
     payment: [{
         month: String,
