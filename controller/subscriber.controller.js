@@ -175,6 +175,138 @@ module.exports = {
       console.log(error);
       res.status(500).json({ msg: 'server error' });
     }
+    },
+
+    deleteMonthlyPayment: async (req, res) => {
+      try {
+        const subscriber = await Subscriber.findOneAndUpdate(
+          { _id: req.params.id },
+          {
+            $pull: {
+              payment: {
+                _id: req.params.paymentid,
+              },
+            },
+          },
+          { new: true } // This option returns the modified document
+        );
+    
+        if (!subscriber) {
+          return res.status(404).json({ msg: 'Subscriber not found' });
+        }
+    
+        if (!subscriber.payment._id) {
+          return res.status(404).json({ msg: 'Subscriber payment id not found' });
+        }
+        res.json({
+          msg: `Payment removed from subscriber with id ${req.params.id}, name ${subscriber.firstName}`,
+        });
+      } catch (error) {
+        console.log(error);
+        res.status(500).json({ msg: 'Server error' });
+      }
+    },
+
+    removeSubscriptionById: async (req, res) => {
+      try {
+        const subscriber = await Subscriber.findById(req.params.id);
+    
+        if (!subscriber) {
+          return res.status(404).json({ msg: 'Subscriber with such id not found' });
+        }
+
+        // Check if there is at least one payment and its status is false
+        if (subscriber.payment.length > 0 && subscriber.payment[0].status === false) {
+          return res.status(404).json({ msg: 'Your payment status shows you have outstanding payment. Pay off to remove the subscription.' });
+        }
+    
+        const updatedSubscriber = await Subscriber.findByIdAndUpdate(
+          req.params.id,
+          {
+            $set: {
+              subscription: false,
+            },
+          },
+          { new: true } // This option returns the modified document
+        );
+    
+        res.json({ msg: `Subscription with id ${updatedSubscriber._id} has been updated` });
+      } catch (error) {
+        console.log(error);
+        res.status(500).json({ msg: 'Server error' });
+      }
+    },
+    
+    readdSubscription: async (req, res)=>{
+      try {
+        const subscriber = await Subscriber.findById(req.params.id);
+    
+        if (!subscriber) {
+          return res.status(404).json({ msg: 'Subscriber with such id not found' });
+        }
+
+      if (subscriber.subscription === true) {
+        return res.status(404).json({ msg: 'you have already subscribed' });
+      }
+    
+        const updatedSubscriber = await Subscriber.findByIdAndUpdate(
+          req.params.id,
+          {
+            $set: {
+              subscription: true,
+            },
+          },
+          { new: true } // This option returns the modified document
+        );
+
+        scheduledJob(req.params.id)
+
+        res.json({ msg: `Subscription with id ${updatedSubscriber._id} has been re-added` });
+      } catch (error) {
+        console.log(error);
+        res.status(500).json({ msg: 'Server error' });
+      }
+    },
+
+    getOneSubscriberById: async (req, res)=>{
+
+      try {
+        const subscriber = await Subscriber.findOne({_id: req.params.id}, {
+          _id:1,
+          firstName:1,
+          subscription:1,
+          payment:1
+        })
+        if (!Subcriber) {
+          return res.json({msg: `id ${req.params.id} not found`})
+        }
+        res.json({subscriber: subscriber})
+      } catch (error) {
+        console.log(error);
+        res.status(500).json({ msg: 'server error' });
+      }
+    },
+
+    deleteSubscriberById: async (req, res)=>{
+      try {
+        const subscriber = await Subscriber.findById(req.params.id);
+
+        if (!subscriber) {
+          return res.status(404).json({msg: `subscriber with id ${req.params.id} not found`})
+        }
+        // Check if there is at least one payment and its status is false
+        if (subscriber.payment.length > 0 && subscriber.payment[0].status === false) {
+          return res.status(404).json({ msg: 'Your payment status shows you have outstanding payment. Pay off to remove the subscription.' });
+        }
+
+        await subscriber.deleteOne();
+
+        res.json({msg: 'subscriber successfully removed'})
+
+      } catch (error) {
+        console.log(error);
+        res.status(500).json({ msg: 'server error' });
+      }
     }
 
 }
